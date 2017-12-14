@@ -1,0 +1,34 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+
+</head>
+<body>
+<div class="container">
+    <h1>列表展示页面</h1>
+    <table class="table table-bordered">
+        <thead>
+            {% for head in head_list %}
+                <th>{{ head }}</th>
+            {% endfor %}
+
+        </thead>
+        <tbody>
+            {% for data in data_list %}
+                <tr>
+                    {% for obj in data %}
+                        <td>{{ obj }}</td>
+                    {% endfor %}
+
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

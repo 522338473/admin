@@ -6,13 +6,21 @@
     <title>Title</title>
     <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/form_style.css' %}">
+    <style>
+        body{
+            background: url("{% static 'img/add_background.jpg' %}");
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-md-4 col-md-offset-4">
-            <h1>添加页面</h1>
+    <div class="row" style="margin-top: 27px">
+        <h1>添加页面</h1>
+        <div class="col-md-4 col-md-offset-1">
             {% include 'stark/form.html' %}
+        </div>
+        <div class="col-md-4 col-md-offset-1">
+            <img src="{% static 'img/picture.gif' %}" alt="">
         </div>
     </div>
 </div>

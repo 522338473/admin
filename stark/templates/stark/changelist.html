@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+    <style>
+        body{
+            background: url("{% static 'img/background.jpg' %}");
+        }
+    </style>
 
 </head>
 <body>
@@ -13,7 +18,7 @@
     {% if show_add_btn %}
         <a href="{{ add_url }}" class="btn btn-primary">添加</a>
     {% endif %}
-    <table class="table table-bordered">
+    <table class="table table-bordered table-hover">
         <thead>
             {% for head in head_list %}
                 <th>{{ head }}</th>

@@ -157,6 +157,7 @@ class StarkConfig(object):
             return render(request,"stark/change_add.html",{"form":form})
 
     def delete_view(self, request, nid, *args, **kwargs):
+        
         self.model_class.objects.filter(pk=nid).delete()
         return redirect(self.get_list_url())
 

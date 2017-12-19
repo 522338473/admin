@@ -16,8 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 # from django.contrib import admin
 from stark.service import v1
+from app03 import views
 
 print("===========这里在strack后边执行======")
 urlpatterns = [
     url(r'^stark/', v1.site.urls),
+    url(r'^host/', views.hosts),
 ]

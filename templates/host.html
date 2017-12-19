@@ -1,0 +1,43 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+
+
+</head>
+<style>
+    .pager a{
+        display: inline-block;
+        padding:2px 8px;
+        margin:0 5px;
+        border:1px solid cadetblue;
+        text-decoration: none;
+    }
+    .pager a.active{
+        background-color: #2b669a;
+        color: white;
+    }
+
+</style>
+<body>
+
+
+
+
+
+<ul>
+    {% for host in host_list %}
+            <li>{{ host }}</li>
+{#        某一段数据#}
+    {% endfor %}
+
+</ul>
+<div class="pager">
+    {{ page_html|safe }}
+{#    按钮#}
+</div>
+</body>
+</html>

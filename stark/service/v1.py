@@ -156,7 +156,7 @@ class ChangeList(object):
         for option in self.comb_filter:
 
             _field = self.model_class._meta.get_field(option.field_name)
-            print("这里看来是执行不到了")
+
             if isinstance(_field,ForeignKey):       #外键
                 # data_list.append(_field.rel.to.objects.all())
                 row = FilterRow(option,option.get_queryset(_field),self.request)
@@ -234,12 +234,12 @@ class StarkConfig(object):
         '''
         data = []
         if self.list_display:
-            # print('====list_display', self.list_display)
+
             data.extend(self.list_display)
             data.append(StarkConfig.edit)
             data.append(StarkConfig.delete)
             data.insert(0, StarkConfig.checkbox)
-        # print('========data', data)
+
         return data
 
     # 是否显示添加按钮
@@ -377,7 +377,7 @@ class StarkConfig(object):
         model_form_class = self.get_model_form_class()
         if request.method == "GET":
             form = model_form_class(instance=obj)
-            print(request.GET.urlencode,"===get")
+
             return render(request, "stark/change_edit.html", {"form": form})
         else:
             form = model_form_class(instance=obj, data=request.POST)
@@ -427,7 +427,7 @@ class StarkConfig(object):
             url(r'^(\d+)/delete/$', self.wrap(self.delete_view), name='%s_%s_delete' % app_model_name),
             url(r'^(\d+)/change/$', self.wrap(self.change_view), name='%s_%s_change' % app_model_name)
         ]
-        print("=========哈哈")
+
         url_patterns.extend(self.extra_url())
         '''
             url_patterns:扩展功能
@@ -490,7 +490,7 @@ class StarkSite(object):
         self._registry = {}
 
     def register(self, model_class, stark_config_class=None):
-        print(stark_config_class, '=====草拟大爷')
+
         '''
         这个函数在注册的时候执行：v1.site.register(model.UserInfo,UserInfoConfig)
         :param model_class:  <class 'django.db.models.base.ModelBase'>: 指的是当前传进来的对象
@@ -498,7 +498,7 @@ class StarkSite(object):
         :return:
         '''
         if not stark_config_class:
-            print("==========这里好像执行不到？")
+
             '''
                 stark_config_class = StarkConfig;这里和上边的StarkConfig关联起来
             '''
@@ -527,9 +527,9 @@ class StarkSite(object):
             '''
             app_name = model_class._meta.app_label
             model_name = model_class._meta.model_name
-            print("========下一个笑起来")
+
             curd_url = url(r'^%s/%s/' % (app_name, model_name,), (stark_config_obj.urls, None, None))
-            print("=========笑完了来这里吗？")
+
             '''
                 stark_config_obj.urls === include(stark_config_obj.urls)
                 curd_url:The path of application and table splicing 

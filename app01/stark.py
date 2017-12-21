@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-print("=======app01========")
+
 from stark.service import v1
 from app01 import models
 from django.utils.safestring import mark_safe

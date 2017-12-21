@@ -7,6 +7,7 @@ from django.http import QueryDict
 from adm.pager import Pagination
 from django.db.models import Q
 import copy
+import json
 # from adm import pager
 
 
@@ -352,22 +353,22 @@ class StarkConfig(object):
         :return:
         '''
         model_form_class = self.get_model_form_class()
+        _popbackid = request.GET.get("_popbackid")
         if request.method == "GET":
             form = model_form_class()
             return render(request, "stark/change_add.html", {"form": form})
         else:
             form = model_form_class(request.POST)
             if form.is_valid():
-                form.save()
-                return redirect(self.get_list_url())
+                new_obj = form.save()
+                if _popbackid:
+                    result = {"id":new_obj.pk,"text":str(new_obj),"popbackid":_popbackid}
+                    return render(request,"stark/popup_response.html",{"json_result":json.dumps(result,ensure_ascii=False)})
+                else:
+                    return redirect(self.get_list_url())
+
             return render(request, "stark/change_add.html", {"form": form})
 
-    def delete_view(self, request, nid, *args, **kwargs):
-        if request.method == "GET":
-            return render(request, "my_delete.html")
-        else:
-            self.model_class.objects.filter(pk=nid).delete()
-            return redirect(self.get_list_url())
 
     def change_view(self, request, nid, *args, **kwargs):
         obj = self.model_class.objects.filter(pk=nid).first()
@@ -392,6 +393,16 @@ class StarkConfig(object):
 
 
             ###########################URL##############相关##########################################################
+
+
+    def delete_view(self, request, nid, *args, **kwargs):
+        if request.method == "GET":
+            return render(request, "my_delete.html")
+        else:
+            self.model_class.objects.filter(pk=nid).delete()
+            return redirect(self.get_list_url())
+
+
 
 
     def wrap(self,view_func):

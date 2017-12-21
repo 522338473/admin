@@ -1,13 +1,13 @@
 from django.db import models
 
 class Role(models.Model):
-    title = models.CharField(verbose_name='角色标题',max_length=32)
+    title = models.CharField(verbose_name='角色',max_length=32)
 
     def __str__(self):
         return self.title
 
 class Department(models.Model):
-    caption = models.CharField(verbose_name='部门名称',max_length=23)
+    caption = models.CharField(verbose_name='部门',max_length=23)
     def __str__(self):
         return self.caption
 
@@ -22,6 +22,6 @@ class UserInfo(models.Model):
     )
     gender = models.IntegerField(verbose_name='性别',choices=gender_choices)
 
-    depart = models.ForeignKey(verbose_name="所属部门",to=Department)
-    roles = models.ManyToManyField(verbose_name="扮演的角色", to=Role)
+    depart = models.ForeignKey(verbose_name="部门",to=Department)
+    roles = models.ManyToManyField(verbose_name="角色", to=Role)
 

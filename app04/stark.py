@@ -2,6 +2,21 @@
 
 from stark.service import v1
 from app04 import models
+from django.forms import ModelForm,fields,widgets
+
+
+class UserInfoForm(ModelForm):
+    class Meta:
+        model = models.UserInfo
+        fields = "__all__"
+        widgets = {
+            "name":widgets.TextInput(attrs={"class":"form-control"}),
+            "email":widgets.EmailInput(attrs={"class":"form-control"}),
+            "gender":widgets.Select(attrs={"class":"form-control"}),
+            "depart":widgets.Select(attrs={"class":"form-control"}),
+            "roles":widgets.SelectMultiple(attrs={"class":"form-control"})
+
+        }
 
 
 class UserInfoConfig(v1.StarkConfig):
@@ -22,6 +37,8 @@ class UserInfoConfig(v1.StarkConfig):
         for i in obj.roles.all():
             result.append(i.title)
         return "__".join(result)
+
+    # model_form_class = UserInfoForm
 
 
     list_display = ["id","name","email",displsy_gender,display_depart,display_roles]

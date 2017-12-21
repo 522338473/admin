@@ -33,7 +33,7 @@ class UserInfoConfig(v1.StarkConfig):
     list_display = ["id", "name", "email", "ut"]  # 要显示的列
     show_add_btn = True
 
-    model_form_class = UserInfoForm          #这里的UserInfoForm应该是一个类，不可以是对象
+    # model_form_class = UserInfoForm          #这里的UserInfoForm应该是一个类，不可以是对象
 
     show_search_form = True
     search_fields = ["name__contains","email__contains"]

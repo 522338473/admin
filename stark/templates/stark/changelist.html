@@ -14,32 +14,63 @@
             font-size: 14px;
             color: black;
         }
+        .list-filter a{
+            display: inline-block;
+            padding: 3px 6px;
+            border: 1px solid #2b669a;
+            margin: 3px 0;
+            text-decoration: none;
+        }
+        .list-filter a.active{
+            background-color: #2b669a;
+            color: white;
+
+        }
+{#        .item{#}
+{#            display: block;#}
+{#        }#}
     </style>
 
 </head>
 <body>
 <div class="container">
     <h1>列表展示页面</h1>
-    {% if c1.show_search_form %}
+
+
+
+    <div class="list-filter">
+        {% for item in cl.gen_comb_filter %}
+            <div class="item">
+                {% for col in item %}
+                    {{ col }}
+                {% endfor %}
+
+            </div>
+        {% endfor %}
+
+    </div>
+
+
+    {% if cl.show_search_form %}
         <div class="form-group pull-right">
             <form method="get">
-                <input name="{{ c1.config.search_key }}" value="{{ c1.search_form_val }}" class="form-control"
+                <input name="{{ cl.config.search_key }}" value="{{ cl.search_form_val }}" class="form-control"
                        placeholder="请输入搜索条件" type="text" style="display:inline-block;width: 200px;">
                 <button class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
             </form>
         </div>
     {% endif %}
 
-    {% if c1.show_add_btn %}
-        <a href="{{ c1.add_url }}" class="btn btn-primary">添加</a>
+    {% if cl.show_add_btn %}
+        <a href="{{ cl.add_url }}" class="btn btn-primary">添加</a>
     {% endif %}
 
     <form method="post">
         {% csrf_token %}
-        {% if c1.show_actions %}
+        {% if cl.show_actions %}
             <div class="form-group">
                 <select name="list_action" class="form-control" style="display:inline-block;width: 200px;">
-                    {% for item in c1.modify_actions %}
+                    {% for item in cl.modify_actions %}
                         <option value="{{ item.name }}">{{ item.text }}</option>
                     {% endfor %}
                 </select>
@@ -49,13 +80,13 @@
 
     <table class="table table-bordered table-hover">
         <thead>
-        {% for head in c1.head_list %}
+        {% for head in cl.head_list %}
             <th>{{ head }}</th>
         {% endfor %}
 
         </thead>
         <tbody>
-        {% for data in c1.body_list %}
+        {% for data in cl.body_list %}
             <tr>
                 {% for obj in data %}
                     <td>{{ obj }}</td>
@@ -70,12 +101,9 @@
 
 
 
-
-
-
     <nav aria-label="...">
         <ul class="pagination">
-            {{ c1.page_obj.page_html|safe }}
+            {{ cl.page_obj.page_html|safe }}
         </ul>
     </nav>
 

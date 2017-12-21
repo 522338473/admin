@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-# from django.contrib import admin
+from django.contrib import admin
 from stark.service import v1
 from app03 import views
 
@@ -22,4 +22,6 @@ print("===========这里在strack后边执行======")
 urlpatterns = [
     url(r'^stark/', v1.site.urls),
     url(r'^host/', views.hosts),
+    # url(r'^admin/',admin.site.urls),
+    # url(r'^admin/',([ url(r'^$',) ],None,None)),
 ]

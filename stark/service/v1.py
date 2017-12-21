@@ -6,7 +6,77 @@ from django.urls import reverse
 from django.http import QueryDict
 from adm.pager import Pagination
 from django.db.models import Q
+import copy
 # from adm import pager
+
+
+class FilterOption(object):
+    def __init__(self,field_name,multi=False,condition=None,is_choice=False):
+        self.field_name = field_name
+        self.multi = multi
+        self.is_choice = is_choice
+        self.condition = condition
+    def get_queryset(self,_field):
+        if self.condition:
+            return _field.rel.to.objects.filter(**self.condition)
+        return _field.rel.to.objects.all()
+
+    def get_choices(self,_field):
+        return _field.choices
+
+
+
+class FilterRow(object):
+    def __init__(self,option,data,request):
+        self.data = data
+        self.option = option
+        self.request = request
+    def __iter__(self):
+        params = copy.deepcopy(self.request.GET)
+        params._mutable = True
+        current_id = params.get(self.option.field_name)
+        current_id_list = params.getlist(self.option.field_name)
+
+        if self.option.field_name in params:
+            origin_list = params.pop(self.option.field_name)
+            url = "{0}?{1}".format(self.request.path_info,params.urlencode())
+            yield mark_safe("<a href='{0}'>全部</a>".format(url))
+            params.setlist(self.option.field_name,origin_list)
+        else:
+            url = "{0}?{1}".format(self.request.path_info,params.urlencode())
+            yield mark_safe("<a class='active' href='{0}'>全部</a>".format(url))
+
+        for val in self.data:
+            if self.option.is_choice:
+                pk, text = str(val[0]), val[1]
+            else:
+                pk, text = str(val.pk), str(val)
+            if not self.option.multi:
+                params[self.option.field_name] = pk
+
+                url = "{0}?{1}".format(self.request.path_info, params.urlencode())
+                if current_id == pk:
+                    yield mark_safe("<a class='active' href='{0}'>{1}</a>".format(url,text))
+                else:
+                    yield mark_safe("<a href='{0}'>{1}</a>".format(url,text))
+            else:
+                _params = copy.deepcopy(params)
+                id_list = _params.getlist(self.option.field_name)
+                if pk in current_id_list:
+                    id_list.remove(pk)
+                    _params.setlist(self.option.field_name,id_list)
+                    url = "{0}?{1}".format(self.request.path_info,_params.urlencode())
+                    yield mark_safe("<a class='active' href='{0}'>{1}</a>".format(url,text))
+                else:
+                    id_list.append(pk)
+                    _params.setlist(self.option.field_name,id_list)
+                    url = "{0}?{1}".format(self.request.path_info,_params.urlencode())
+                    yield mark_safe("<a href='{0}'>{1}</a>".format(url,text))
+
+
+
+
+
 
 class ChangeList(object):
     '''
@@ -29,17 +99,11 @@ class ChangeList(object):
         self.show_add_btn = config.get_show_add_btn()
         self.actions = config.get_actions()
         self.show_actions = config.get_show_actions()
+        self.comb_filter = config.get_comb_filter()
         self.show_search_form = config.get_show_search_form()
         self.search_form_val = config.request.GET.get(config.search_key,"")
-        print("self.config",self.config)
-        print("self.list_display",self.list_display)
-        print("self.model_class",self.model_class)
-        print("self.request",self.request)
-        print("self.show_add_btn",self.show_add_btn)
-        print("self.actions",self.actions)
-        print("self.show_actions",self.show_actions)
-        print("self.show_search_form",self.show_search_form)
-        print("self.search_form_val",self.search_form_val)
+
+
         current_page = self.request.GET.get("page",1)
         total_count = queryset.count()
         page_obj = Pagination(current_page,total_count,self.request.path_info,self.request.GET,per_page_count=2)
@@ -85,6 +149,25 @@ class ChangeList(object):
         return new_data_list
 
 
+    def gen_comb_filter(self):
+        from django.db.models import ForeignKey, ManyToManyField
+
+        for option in self.comb_filter:
+
+            _field = self.model_class._meta.get_field(option.field_name)
+            print("这里看来是执行不到了")
+            if isinstance(_field,ForeignKey):       #外键
+                # data_list.append(_field.rel.to.objects.all())
+                row = FilterRow(option,option.get_queryset(_field),self.request)
+            elif isinstance(_field,ManyToManyField):    #多对多
+                # data_list.append(_field.rel.to.objects.all())
+                row = FilterRow(option, option.get_queryset(_field), self.request)
+            else:          #单选
+                # data_list.append(_field.choices)
+                row = FilterRow(option,option.get_choices(_field),self.request)
+            yield row
+
+
 
 
 class StarkConfig(object):
@@ -109,6 +192,7 @@ class StarkConfig(object):
         self.request = None
         self._query_param_key ="_listfilter"
         self.search_key = "_q"
+
 
 
     # 自定义列表显示的列
@@ -205,6 +289,7 @@ class StarkConfig(object):
         return condition
 
 
+    # actions
     show_actions = False
     def get_show_actions(self):
         return self.show_actions
@@ -218,21 +303,47 @@ class StarkConfig(object):
         return result
 
 
+    # 组合搜索
+    comb_filter = []
+    def get_comb_filter(self):
+        result = []
+        if self.comb_filter:
+            result.extend(self.comb_filter)
+        return result
+
+
 
 
 
 
     ##########################请求处理的方法######视图相关########################################################
     def changelist_view(self, request, *args, **kwargs):
+
+
         if request.method == "POST" and self.get_show_actions():
-            func_name_str = request.POST.get("list_actions")
+            func_name_str = request.POST.get("list_action")
             action_func = getattr(self,func_name_str)
             ret = action_func(request)
             if ret:
                 return ret
-        queryset = self.model_class.objects.filter(self.get_search_condition())
-        c1 = ChangeList(self,queryset)
-        return render(request,"stark/changelist.html",{"c1":c1})
+
+        comb_condition = {}
+        option_list = self.get_comb_filter()
+        for key in request.GET.keys():
+            value_list = request.GET.getlist(key)
+            flag = False
+            for option in option_list:
+                if option.field_name == key:
+                    flag = True
+                    break
+            if flag:
+                comb_condition["%s__in"%key] = value_list
+        queryset = self.model_class.objects.filter(self.get_search_condition()).filter(**comb_condition).distinct()
+
+        cl = ChangeList(self,queryset)
+
+
+        return render(request,"stark/changelist.html",{"cl":cl})
 
 
     def add_view(self, request, *args, **kwargs):

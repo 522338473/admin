@@ -12,11 +12,19 @@ import json
 
 
 class FilterOption(object):
-    def __init__(self,field_name,multi=False,condition=None,is_choice=False):
+    def __init__(self,field_name,multi=False,condition=None,is_choice=False,text_func_name=None,val_func_name=None):
+        '''
+        :param field_name: 字段名
+        :param multi: 是否多选
+        :param condition: 显示数据的筛选条件
+        :param is_choice: 是否是choice
+        '''
         self.field_name = field_name
         self.multi = multi
         self.is_choice = is_choice
         self.condition = condition
+        self.text_func_name = text_func_name
+        self.val_func_name = val_func_name
     def get_queryset(self,_field):
         if self.condition:
             return _field.rel.to.objects.filter(**self.condition)
@@ -29,6 +37,11 @@ class FilterOption(object):
 
 class FilterRow(object):
     def __init__(self,option,data,request):
+        '''组合搜索类
+        :param option: 字段名
+        :param data:
+        :param request: request请求的数据
+        '''
         self.data = data
         self.option = option
         self.request = request
@@ -39,6 +52,7 @@ class FilterRow(object):
         current_id_list = params.getlist(self.option.field_name)
 
         if self.option.field_name in params:
+            print("params",params)
             origin_list = params.pop(self.option.field_name)
             url = "{0}?{1}".format(self.request.path_info,params.urlencode())
             yield mark_safe("<a href='{0}'>全部</a>".format(url))
@@ -101,16 +115,19 @@ class ChangeList(object):
         self.actions = config.get_actions()
         self.show_actions = config.get_show_actions()
         self.comb_filter = config.get_comb_filter()
+        self.edit_link = config.get_edit_link()
         self.show_search_form = config.get_show_search_form()
         self.search_form_val = config.request.GET.get(config.search_key,"")
 
 
+        # 分页处理相关
         current_page = self.request.GET.get("page",1)
         total_count = queryset.count()
-        page_obj = Pagination(current_page,total_count,self.request.path_info,self.request.GET,per_page_count=2)
+        page_obj = Pagination(current_page,total_count,self.request.path_info,self.request.GET)
         self.page_obj = page_obj
 
         self.data_list = queryset[page_obj.start:page_obj.end]
+
 
     def modify_actions(self):
         result = []
@@ -125,17 +142,24 @@ class ChangeList(object):
 
 
     def head_list(self):
+        '''
+        :return: 要显示的表头部分
+        '''
         result = []
         for field_name in self.list_display:
             if isinstance(field_name,str):
                 verbose_name = self.model_class._meta.get_field(field_name).verbose_name
             else:
                 verbose_name = field_name(self.config,is_header=True)
+                print("self_config",self.config)
             result.append(verbose_name)
         return result
 
 
     def body_list(self):
+        '''
+        :return: body体部分，主要数据;data_list:所有数据
+        '''
         data_list = self.data_list
         new_data_list = []
         for row in data_list:
@@ -143,6 +167,9 @@ class ChangeList(object):
             for field_name in self.list_display:
                 if isinstance(field_name,str):
                     val = getattr(row,field_name)
+                    # 自定义编辑列
+                    if field_name in self.edit_link:
+                        val = self.edit_link_tag(row.pk,val)
                 else:
                     val = field_name(self.config,row)
                 temp.append(val)
@@ -167,6 +194,23 @@ class ChangeList(object):
                 # data_list.append(_field.choices)
                 row = FilterRow(option,option.get_choices(_field),self.request)
             yield row
+
+
+    def edit_link_tag(self,pk,text):
+        '''
+        此函数的作用是返回一个可以点击的标签
+        :param pk:
+        :param text:
+        :return: 返回一个标签，
+        '''
+        query_str = self.request.GET.urlencode()
+        print("query_str",query_str)
+        params = QueryDict(mutable=True)
+
+        params[self.config._query_param_key] = query_str
+        print("params", params)
+        print("params_urlencode",params.urlencode())
+        return mark_safe('<a href="%s?%s">%s</a>' % (self.config.get_change_url(pk), params.urlencode(), text,))
 
 
 
@@ -211,8 +255,10 @@ class StarkConfig(object):
         if is_header:
             return "编辑"
         query_str = self.request.GET.urlencode()
+        print("self.request.GET.urlencode()",self.request.GET.urlencode())
         # query_str : 前端获取到的页码
         if query_str:
+            print("============>")
             params = QueryDict(mutable=True)                 # 设置可以被修改
             params[self._query_param_key] = query_str
             # self.get_change_url(obj.id)?params.urlencode():拼接后的URL（具有记忆功能）
@@ -239,8 +285,15 @@ class StarkConfig(object):
             data.append(StarkConfig.edit)
             data.append(StarkConfig.delete)
             data.insert(0, StarkConfig.checkbox)
-
         return data
+
+    # 可编辑按钮
+    edit_link = []
+    def get_edit_link(self):
+        result = []
+        if self.edit_link:
+            result.extend(self.edit_link)
+        return result
 
     # 是否显示添加按钮
     show_add_btn = True
@@ -281,11 +334,14 @@ class StarkConfig(object):
 
     def get_search_condition(self):
         key_word = self.request.GET.get(self.search_key)
+        # key_word:获取到的关键字
         search_fields = self.get_search_fields()
+        # search_fields:过滤条件
         condition = Q()
         condition.connector = "or"
         if key_word and self.get_show_search_form():
             for field_name in search_fields:
+                print("field_name",field_name,search_fields)
                 condition.children.append((field_name,key_word))
         return condition
 
@@ -296,7 +352,7 @@ class StarkConfig(object):
         return self.show_actions
 
 
-    actions = []
+    actions = []      #添加函数.short_desc显示在actions
     def get_actions(self):
         result = []
         if self.actions:
@@ -320,7 +376,6 @@ class StarkConfig(object):
     ##########################请求处理的方法######视图相关########################################################
     def changelist_view(self, request, *args, **kwargs):
 
-
         if request.method == "POST" and self.get_show_actions():
             func_name_str = request.POST.get("list_action")
             action_func = getattr(self,func_name_str)
@@ -329,7 +384,9 @@ class StarkConfig(object):
                 return ret
 
         comb_condition = {}
+        # 搜索相关的处理
         option_list = self.get_comb_filter()
+        print("option_list",option_list)
         for key in request.GET.keys():
             value_list = request.GET.getlist(key)
             flag = False
@@ -354,15 +411,38 @@ class StarkConfig(object):
         '''
         model_form_class = self.get_model_form_class()
         _popbackid = request.GET.get("_popbackid")
+        print("_prpbackid",_popbackid)
         if request.method == "GET":
             form = model_form_class()
-            return render(request, "stark/change_add.html", {"form": form})
+            return render(request, "stark/change_add.html", {"form": form,'config':self})
+
         else:
             form = model_form_class(request.POST)
             if form.is_valid():
                 new_obj = form.save()
                 if _popbackid:
-                    result = {"id":new_obj.pk,"text":str(new_obj),"popbackid":_popbackid}
+                    from django.db.models.fields.reverse_related import ManyToOneRel,ManyToManyRel
+
+                    # _popbackid:popup框
+                    result = {"status":False,"id":None,"text":None,"popbackid":_popbackid}
+                    # result:result {'id': 8, 'text': '后勤部', 'popbackid': 'id_depart'}
+                    model_name = request.GET.get("model_name")
+                    related_name = request.GET.get("related_name")
+                    for related_object in new_obj._meta.related_objects:
+                        _model_name = related_object.field.model._meta.model_name
+                        _related_name = related_object.related_name
+                        if (type(related_object)== ManyToOneRel):
+                            _field_name = related_object.field_name
+                        else:
+                            _field_name = "pk"
+                        _limit_choices_to = related_object.limit_choices_to
+                        if model_name == _model_name and related_name == str(_related_name):
+                            is_exists = self.model_class.objects.filter(**_limit_choices_to,pk=new_obj.pk).exists()
+                            if is_exists:
+                                result["status"] = True
+                                result["text"] = str(new_obj)
+                                result["id"] = getattr(new_obj,_field_name)
+                                return render(request,"stark/popup_response.html",{"json_result":json.dumps(result,ensure_ascii=False)})
                     return render(request,"stark/popup_response.html",{"json_result":json.dumps(result,ensure_ascii=False)})
                 else:
                     return redirect(self.get_list_url())
@@ -371,6 +451,7 @@ class StarkConfig(object):
 
 
     def change_view(self, request, nid, *args, **kwargs):
+        # obj 前端获取到的数据
         obj = self.model_class.objects.filter(pk=nid).first()
         if not obj:
             return redirect(self.get_list_url())
@@ -386,7 +467,7 @@ class StarkConfig(object):
                 list_query_str = request.GET.get(self._query_param_key)
                 # list_query_str:获取到的当前页码
                 list_url = "%s?%s"%(self.get_list_url(),list_query_str)
-                # list_url:拼接后的路径
+                # list_url:拼接后的路径,返回的时候具有记忆功能
                 return redirect(list_url)
             return render(request, "stark/change_edit.html", {"form": form})
 
@@ -523,7 +604,7 @@ class StarkSite(object):
             '''
                 <class 'app01.models.UserInfo'> <app01.stark.UserInfoConfig object at 0x03587A10>
                 app_name:app name
-                model_name:model name
+                model_name:model name 
             '''
             app_name = model_class._meta.app_label
             model_name = model_class._meta.model_name

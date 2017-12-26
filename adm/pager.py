@@ -3,7 +3,7 @@ class Pagination(object):
     自定义分页
     """
 
-    def __init__(self, current_page, total_count, base_url, params, per_page_count=10, max_pager_count=11):
+    def __init__(self, current_page, total_count, base_url, params, per_page_count=7, max_pager_count=11):
         '''
         :param current_page: 从前端get请求传过来的页码
         :param total_count:  总共的数据长度

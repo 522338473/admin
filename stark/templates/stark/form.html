@@ -3,14 +3,18 @@
     {% csrf_token %}
     {% for dic in form %}
         <div class="col-md-12">
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom: 20px" >
                 <label for="inputEmail3" class="col-md-2 control-label">{{ dic.item.field.label }}</label>
-                <div class="col-md-8">
+                <div class="col-md-8" style="position: relative">
                     {{ dic.item }}
                     {% if dic.is_popup %}
-                        <a onclick="popUp('{{ dic.popup_url }}')">＋</a>
+                        <div style="position: absolute;right: -20px;top: 10px;cursor: pointer;">
+                            <a onclick="popUp('{{ dic.popup_url }}')" class="glyphicon glyphicon-eye-open" style="text-decoration: none;color: #245580"></a>
+                        </div>
                     {% endif %}
-                    {{ dic.item.field.errors.0 }}
+                    <div style="position: absolute;left: 15px;right: 15px;background-color: #c0a16b;color: white;font-size: 12px" >
+                        {{ dic.item.errors.0 }}
+                    </div>
 
                 </div>
             </div>
@@ -26,11 +30,13 @@
 
 <script>
     function popupCallback(dic) {
-        var op = document.createElement('option');
-        op.value = dic.id;
-        op.text = dic.text;
-        op.setAttribute('selected','selected');
-        document.getElementById(dic.popbackid).appendChild(op);
+        if(dic.status){
+            var op = document.createElement('option');
+            op.value = dic.id;
+            op.text = dic.text;
+            op.setAttribute('selected','selected');
+            document.getElementById(dic.popbackid).appendChild(op);
+        }
 
     }
     function popUp(url) {

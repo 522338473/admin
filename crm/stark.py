@@ -54,17 +54,13 @@ v1.site.register(models.ClassList,ClassListConfig)
 
 
 class StudentConfig(v1.StarkConfig):
-    def display_class_list(self,obj=None,is_header=False):
-        result = []
-        if is_header:
-            return "已报班级"
-        for i in obj.class_list.all():
-            result.append(i.semester)
-        return "__".join(result)
 
-    list_display = ["id","username","emergency_contract",display_class_list,"company",]
+
+    list_display = ["id","username","emergency_contract","company",]
 
     show_search_form = True
+
+
 
 
 
@@ -106,22 +102,41 @@ v1.site.register(models.ConsultRecord,ConsultRecordConfig)
 
 
 class CourseRecordConfig(v1.StarkConfig):
-    def display_class_obj(self,obj=None,is_header=False):
+
+
+    def kaoqin(self,obj=None,is_header=False):
         if is_header:
-            return "班级"
-        return obj.class_obj.semester
-    def display_teacher(self,obj=None,is_header=False):
+            return "考勤"
+        return mark_safe("<a href='/stark/crm/studyrecord/?course_record=%s'>考勤管理</a>" %obj.pk)
+    def score_input(self,obj=None,is_header=False):
         if is_header:
-            return "讲师"
-        return obj.teacher.name
-    list_display = ["id",display_class_obj,"day_num",display_teacher,"date","course_title","course_memo","has_homework","homework_title","homework_memo","exam"]
-    comb_filter = [
-        v1.FilterOption("class_obj"),
-        v1.FilterOption("teacher"),
-    ]
+            return "成绩录入"
+        from django.urls import reverse
+        # rurl = reverse("stark:crm_courserecord_score_list", args=(obj.pk,))
+        # return mark_safe("<a href='%s'>成绩录入</a>"%rurl)
+        return mark_safe("<a href=''>成绩录入</a>")
+    list_display = ["class_obj","day_num",kaoqin,score_input]
+
     show_search_form = True
 
     show_actions = True
+
+    def mul_init(self,request):
+        pk_list = request.POST.getlist("pk")
+        record_list = models.CourseRecord.objects.filter(id__in=pk_list)
+        for record in record_list:
+            exists = models.StudyRecord.objects.filter(course_record=record).exists()
+            if exists:
+                continue
+            student_list = models.Student.objects.filter(class_list=record.class_obj)
+            bulk_list = []
+            for student in student_list:
+                bulk_list.append(models.StudyRecord(student=student,course_record=record))
+            models.StudyRecord.objects.bulk_create(bulk_list)
+
+    mul_init.short_desc = "学生初始化"
+
+    actions = [mul_init,]
 
 
 v1.site.register(models.CourseRecord,CourseRecordConfig)
@@ -221,16 +236,40 @@ v1.site.register(models.School,SchoolConfig)
 
 
 class StudyRecordConfig(v1.StarkConfig):
-    def display_course_record(self,obj=None,is_header=False):
+    def display_record(self,obj=None,is_header=False):
         if is_header:
-            return "第几天课程"
-        return obj.get_course_display
-    def display_student(self,obj=None,is_header=False):
-        if is_header:
-            return "学员"
-        return obj.student.username
-    list_display = ["id",display_course_record,display_student,"record","score","homework_note","note","homework","stu_memo","date"]
-    show_search_form = True
+            return "出勤"
+        return obj.get_record_display()
+
+    list_display = ["course_record","student",display_record]
+    comb_filter = [
+        v1.FilterOption("course_record")
+    ]
+    def action_checked(self,request):
+        pk_list = request.POST.getlist("pk")
+        models.StudyRecord.objects.filter(id__in=pk_list).update(record="checked")
+    action_checked.short_desc = "签到"
+    def action_vacate(self,request):
+        pk_list = request.POST.getlist("pk")
+        models.StudyRecord.objects.filter(id__in=pk_list).update(record="vacate")
+    action_vacate.short_desc = "请假"
+    def action_late(self,request):
+        pk_list = request.POST.getlist("pk")
+        models.StudyRecord.objects.filter(id__in=pk_list).update(record="late")
+    action_late.short_desc = "迟到"
+    def action_leave_early(self,request):
+        pk_list = request.POST.getlist("pk")
+        models.StudyRecord.objects.filter(id__in=pk_list).update(record="leave_early")
+    action_leave_early.short_desc = "早退"
+    def action_noshow(self,request):
+        pk_list = request.POST.getlist("pk")
+        models.StudyRecord.objects.filter(id__in=pk_list).update(record="noshow")
+    action_noshow.short_desc = "缺勤"
+
+    actions = [action_checked,action_vacate,action_late,action_leave_early,action_noshow]
+    show_add_btn = False
+    show_actions = True
+
 
 
 

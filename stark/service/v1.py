@@ -115,6 +115,7 @@ class ChangeList(object):
         self.actions = config.get_actions()
         self.show_actions = config.get_show_actions()
         self.comb_filter = config.get_comb_filter()
+        self.show_comb_filter = config.get_show_comb_filter()
         self.edit_link = config.get_edit_link()
         self.show_search_form = config.get_show_search_form()
         self.search_form_val = config.request.GET.get(config.search_key,"")
@@ -282,7 +283,7 @@ class StarkConfig(object):
         if self.list_display:
 
             data.extend(self.list_display)
-            data.append(StarkConfig.edit)
+            # data.append(StarkConfig.edit)
             data.append(StarkConfig.delete)
             data.insert(0, StarkConfig.checkbox)
         return data
@@ -367,6 +368,10 @@ class StarkConfig(object):
         if self.comb_filter:
             result.extend(self.comb_filter)
         return result
+
+    show_comb_filter = False
+    def get_show_comb_filter(self):
+        return self.show_comb_filter
 
 
 

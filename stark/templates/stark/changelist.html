@@ -38,17 +38,17 @@
 
 
 
-    <div class="list-filter">
+    {% if cl.show_comb_filter %}
+        <div class="list-filter">
         {% for item in cl.gen_comb_filter %}
             <div class="item">
                 {% for col in item %}
                     {{ col }}
                 {% endfor %}
-
             </div>
         {% endfor %}
-
     </div>
+    {% endif %}
 
 
     {% if cl.show_search_form %}
@@ -70,6 +70,7 @@
         {% if cl.show_actions %}
             <div class="form-group">
                 <select name="list_action" class="form-control" style="display:inline-block;width: 200px;">
+                    <option value="">请选择初始化</option>
                     {% for item in cl.modify_actions %}
                         <option value="{{ item.name }}">{{ item.text }}</option>
                     {% endfor %}

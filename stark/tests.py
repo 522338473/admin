@@ -33,10 +33,10 @@ class Foo():
 
 
 
-a = 10
-b = a
-del a
-print(a)
+# a = 10
+# b = a
+# del a
+# print(a)
 
 
 

@@ -103,6 +103,40 @@ v1.site.register(models.ConsultRecord,ConsultRecordConfig)
 
 class CourseRecordConfig(v1.StarkConfig):
 
+    def extra_url(self):
+        app_model_name = (self.model_class._meta.app_label,self.model_class._meta.model_name)
+        url_list = [
+            url(r'^(\d+)/score_list$',self.wrap(self.score_list),name="%s_%s_score_list"%(app_model_name))
+        ]
+        return url_list
+
+    def score_list(self,request,record_id):
+        if request.method == "GET":
+            from django.forms import Form,fields,widgets
+            data = []
+            study_record_list = models.StudyRecord.objects.filter(course_record_id=record_id)
+            for obj in study_record_list:
+                TempForm = type("TempForm",(Form,),{
+                    "score_%s"%obj.pk:fields.ChoiceField(choices=models.StudyRecord.score_choices,widget=widgets.Select(attrs={"class":"form-control",})),
+                    "homework_note_%s"%obj.pk:fields.ChoiceField(widget=widgets.TextInput(attrs={"class":"form-control"}))
+                })
+                data.append({'obj':obj,'form':TempForm(initial={'score_%s' %obj.pk:obj.score,'homework_note_%s' %obj.pk:obj.homework_note})})
+            return render(request,"score_list.html",{"data":data})
+        else:
+            data_dict = {}
+            for key,value in request.POST.items():
+                if key == "csrfmiddlewaretoken":
+                    continue
+                name,nid = key.rsplit("_",1)
+                if nid in data_dict:
+                    data_dict[nid][name] = value
+                else:
+                    data_dict[nid] = {name:value}
+
+            for nid,update_dict in data_dict.items():
+                models.StudyRecord.objects.filter(id=nid).update(**update_dict)
+            return redirect(request.path_info)
+
 
     def kaoqin(self,obj=None,is_header=False):
         if is_header:
@@ -112,9 +146,9 @@ class CourseRecordConfig(v1.StarkConfig):
         if is_header:
             return "成绩录入"
         from django.urls import reverse
-        # rurl = reverse("stark:crm_courserecord_score_list", args=(obj.pk,))
-        # return mark_safe("<a href='%s'>成绩录入</a>"%rurl)
-        return mark_safe("<a href=''>成绩录入</a>")
+        rurl = reverse("stark:crm_courserecord_score_list",args=(obj.pk,))
+        return mark_safe("<a href='%s'>成绩录入</a>"%rurl)
+
     list_display = ["class_obj","day_num",kaoqin,score_input]
 
     show_search_form = True

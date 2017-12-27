@@ -48,6 +48,7 @@ class UserInfoConfig(v1.StarkConfig):
         v1.FilterOption("depart",condition={"id__gt":1}),
         v1.FilterOption("roles",True)
     ]
+    show_comb_filter = True
 
 
 v1.site.register(models.UserInfo,UserInfoConfig)

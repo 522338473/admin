@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>QQ</th>
+            <th>用户名</th>
+            <th>课程顾问</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in customers %}
+            <tr>
+                <td>{{ row.customer.qq }}</td>
+                <td>{{ row.customer.name }}</td>
+                <td>{{ row.customer.consultant }}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</body>
+</html>

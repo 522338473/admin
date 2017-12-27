@@ -5,6 +5,9 @@ from stark.service import v1
 from django.utils.safestring import mark_safe
 from django.shortcuts import render,redirect,HttpResponse
 
+from crm.config.student import StudentConfig
+from crm.config.customer import CustomerConfig
+
 class UserInfoConfig(v1.StarkConfig):
     list_display = ["id","name","username","email","depart"]
     show_search_form = True
@@ -53,18 +56,7 @@ v1.site.register(models.ClassList,ClassListConfig)
 
 
 
-class StudentConfig(v1.StarkConfig):
 
-
-    list_display = ["id","username","emergency_contract","company",]
-
-    show_search_form = True
-
-
-
-
-
-v1.site.register(models.Student,StudentConfig)
 
 
 
@@ -178,60 +170,7 @@ v1.site.register(models.CourseRecord,CourseRecordConfig)
 
 
 
-class CustomerConfig(v1.StarkConfig):
 
-    def display_record_consult(self,obj=None,is_header=False):
-        if is_header:
-            return "跟进记录"
-        return mark_safe("<a href='/stark/crm/consultrecord/?customer=%s'>查看跟踪记录</a>"%(obj.pk,))
-    def display_status(self,obj=None,is_header=False):
-        if is_header:
-            return "状态"
-        return obj.get_status_display
-    def display_work_status(self,obj=None,is_header=False):
-        if is_header:
-            return "职业状态"
-        return obj.get_work_status_display
-    def display_gender(self,obj=None,is_header=False):
-        if is_header:
-            return "性别"
-        return obj.get_gender_display
-    def display_course(self,obj=None,is_header=False):
-        result = []
-        if is_header:
-            return "咨询课程"
-        for i in obj.course.all():
-            result.append(i.name)
-        return "_".join(result)
-
-
-    def delete_course(self,request,customer_id,course_id):
-        """
-        删除当前用户感兴趣的课程
-        :param request:
-        :param customer_id:
-        :param course_id:
-        :return:
-        """
-        customer_obj = self.model_class.objects.filter(pk=customer_id).first()
-        customer_obj.course.remove(course_id)
-        # 跳转回去时，要保留原来的搜索条件
-        return redirect(self.get_list_url())
-
-    def extra_url(self):
-        app_model_name = (self.model_class._meta.app_label, self.model_class._meta.model_name,)
-        patterns = [
-            url(r'^(\d+)/(\d+)/dc/$', self.wrap(self.delete_course), name="%s_%s_dc" % app_model_name),
-        ]
-        return patterns
-
-    list_display = ["id","qq","name",display_gender,display_work_status,display_status,display_course,display_record_consult]
-    edit_link = ["name"]
-    show_search_form = True
-
-
-
-v1.site.register(models.Customer,CustomerConfig)
 
 
 

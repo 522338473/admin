@@ -394,14 +394,17 @@ class StarkConfig(object):
         print("option_list",option_list)
         for key in request.GET.keys():
             value_list = request.GET.getlist(key)
+            print("value_list",value_list)
+
             flag = False
             for option in option_list:
                 if option.field_name == key:
                     flag = True
                     break
             if flag:
-                comb_condition["%s__in"%key] = value_list
+                comb_condition["%s__in"%key] = value_list     #filter需要的格式是a=b的格式，所以用__in{"cond__in":[x,y,z]}=====>cond__in=[x,y,z]  ===>cond=x;cond=y;cond=z;
         queryset = self.model_class.objects.filter(self.get_search_condition()).filter(**comb_condition).distinct()
+
 
         cl = ChangeList(self,queryset)
 

@@ -143,6 +143,7 @@ class Customer(models.Model):
         (15, "SEO"),
         (16, "其它"),
     ]
+
     source = models.SmallIntegerField('客户来源', choices=source_choices, default=1)
     referral_from = models.ForeignKey(
         'self',
@@ -152,6 +153,7 @@ class Customer(models.Model):
         help_text="若此客户是转介绍自内部学员,请在此处选择内部学员姓名",
         related_name="internal_referral"
     )
+
     course = models.ManyToManyField(verbose_name="咨询课程", to="Course")
 
     status_choices = [
@@ -165,11 +167,47 @@ class Customer(models.Model):
         help_text=u"选择客户此时的状态"
     )
     consultant = models.ForeignKey(verbose_name="课程顾问", to='UserInfo', related_name='consultant',limit_choices_to={'depart_id':1006})
+
+    recv_date = models.DateField(verbose_name="接客时间",null=True,blank=True)
+
     date = models.DateField(verbose_name="咨询日期", auto_now_add=True)
     last_consult_date = models.DateField(verbose_name="最后跟进日期", auto_now_add=True)
 
     def __str__(self):
         return "姓名:{0},QQ:{1}".format(self.name, self.qq, )
+
+
+class CustomerDistrbution(models.Model):
+    '''
+    客户分配表
+    '''
+    user = models.ForeignKey(verbose_name="客户顾问",to="UserInfo",related_name="cds",limit_choices_to={"depart_id":1006})
+    customer = models.ForeignKey(verbose_name="客户",to="Customer",related_name="dealers")
+    ctime = models.DateField()
+    status_choices = (
+        (1, '正在跟进'),
+        (2, '已成单'),
+        (3, '3天未跟进'),
+        (4, '15天未成单'),
+    )
+    status = models.IntegerField(verbose_name="状态",choices=status_choices,default=1)
+    memo = models.CharField(verbose_name="更多信息",max_length=255)
+
+class SaleRank(models.Model):
+    '''
+    销售权重和数量
+    '''
+    user = models.ForeignKey(to="UserInfo",limit_choices_to={"depart_id":1006})
+    num = models.IntegerField(verbose_name="数量")
+    weight = models.IntegerField(verbose_name="权重")
+
+
+
+
+
+
+
+
 
 
 class ConsultRecord(models.Model):
@@ -181,7 +219,7 @@ class ConsultRecord(models.Model):
     date = models.DateField(verbose_name="跟进日期", auto_now_add=True)
     note = models.TextField(verbose_name="跟进内容...")
 
-
+###customer/classlist
 class PaymentRecord(models.Model):
     """
     缴费记录
@@ -249,6 +287,7 @@ class CourseRecord(models.Model):
         return "{0} day{1}".format(self.class_obj, self.day_num)
 
 
+##studentd
 class StudyRecord(models.Model):
     course_record = models.ForeignKey(verbose_name="第几天课程", to="CourseRecord")
     student = models.ForeignKey(verbose_name="学员", to='Student')

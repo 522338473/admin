@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <table border="1">
+{% extends "stark/layout.html" %}
+
+{% block body %}
+
+    <div class="container">
+    <h1>个人客户页面</h1>
+        <table class="table table-bordered">
         <thead>
         <tr>
             <th>QQ</th>
@@ -24,5 +23,5 @@
 
         </tbody>
     </table>
-</body>
-</html>
+    </div>
+{% endblock %}

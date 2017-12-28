@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "stark/layout.html" %}
 
-<table border="1">
+
+{% block body %}
+    <div class="container">
+    <h1>抢单页面</h1>
+        <table class="table table-bordered">
     <thead>
     <tr>
         <td>ID</td>
@@ -21,12 +19,17 @@
             <td>{{ row.id }}</td>
             <td>{{ row.qq }}</td>
             <td>{{ row.name }}</td>
-            <td><a href="/stark/crm/customer/{{ row.id }}/competition/">抢单</a></td>
+            <td>
+                {% if row.consultant_id == current_user_id %}
+                        <a>无权</a>
+                    {% else %}
+                        <a href="/stark/crm/customer/{{ row.id }}/competition/">抢单</a>
+                    {% endif %}
+            </td>
         </tr>
     {% endfor %}
 
     </tbody>
 </table>
-
-</body>
-</html>
+    </div>
+{% endblock %}

@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>正在关闭</title>
-</head>
-<body>
-    <script>
+{% extends "stark/layout.html" %}
+
+{% block javsscript %}
+        <script>
         (function () {
             var dic = {{ json_result|safe }};
             opener.popupCallback(dic);
             window.close();
         })()
-
     </script>
-</body>
-</html>
+{% endblock %}

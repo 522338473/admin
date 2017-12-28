@@ -128,3 +128,25 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "/stark/static/")
 ]
+
+
+###############################发送广告的配置文件###################################################################
+MESSAGE_CLASSES = [
+    # "utils.message.dingding.DingDing",
+    "utils.message.email.Email",
+    # "utils.message.msg.Msg",
+    # "utils.message.wechat.WeChat",
+]
+
+
+
+
+
+
+
+
+
+
+
+
+

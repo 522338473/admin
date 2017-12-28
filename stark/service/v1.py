@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
-from django.shortcuts import HttpResponse, render, redirect
-from django.utils.safestring import mark_safe
-from django.urls import reverse
-from django.http import QueryDict
-from adm.pager import Pagination
-from django.db.models import Q
 import copy
 import json
+
+from django.conf.urls import url
+from django.db.models import Q
+from django.http import QueryDict
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+
+from utils.pager import Pagination
+
+
 # from adm import pager
 
 
@@ -378,6 +382,8 @@ class StarkConfig(object):
 
 
 
+
+
     ##########################请求处理的方法######视图相关########################################################
     def changelist_view(self, request, *args, **kwargs):
 
@@ -405,10 +411,7 @@ class StarkConfig(object):
                 comb_condition["%s__in"%key] = value_list     #filter需要的格式是a=b的格式，所以用__in{"cond__in":[x,y,z]}=====>cond__in=[x,y,z]  ===>cond=x;cond=y;cond=z;
         queryset = self.model_class.objects.filter(self.get_search_condition()).filter(**comb_condition).distinct()
 
-
         cl = ChangeList(self,queryset)
-
-
         return render(request,"stark/changelist.html",{"cl":cl})
 
 
@@ -429,7 +432,7 @@ class StarkConfig(object):
             if form.is_valid():
                 new_obj = form.save()
                 if _popbackid:
-                    from django.db.models.fields.reverse_related import ManyToOneRel,ManyToManyRel
+                    from django.db.models.fields.reverse_related import ManyToOneRel
 
                     # _popbackid:popup框
                     result = {"status":False,"id":None,"text":None,"popbackid":_popbackid}

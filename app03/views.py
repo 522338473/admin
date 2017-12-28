@@ -1,6 +1,9 @@
-from django.shortcuts import render,HttpResponse
-from adm.pager import Pagination
+from django.shortcuts import render
+
 from app01 import models
+from utils.pager import Pagination
+
+
 # Create your views here.
 
 # HOST_LIST = []

@@ -1,29 +1,26 @@
-{% load staticfiles %}
+{% extends "stark/layout.html" %}
 {% load change_form %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/form_style.css' %}">
+{% load staticfiles %}
+
+
+{% block style %}
     <style>
-        body{
+        body {
             background: url("{% static 'img/edit_background.jpg' %}") no-repeat;
         }
     </style>
-</head>
-<body>
-<div class="container">
-    <div class="row" style="margin-top: 27px">
-        <h1>编辑页面</h1>
-        <div class="col-md-5 col-md-offset-1">
-            {% form config form %}
-        </div>
-        <div class="col-md-6">
-            <img src="{% static 'img/picture.gif' %}" alt="">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row" style="margin-top: 27px">
+            <h1>编辑页面</h1>
+            <div class="col-md-5 col-md-offset-1">
+                {% form config form %}
+            </div>
+            <div class="col-md-6">
+                <img src="/stark/static/img/picture.gif" alt="">
+            </div>
         </div>
     </div>
-</div>
-</body>
-</html>
+{% endblock %}

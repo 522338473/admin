@@ -73,18 +73,17 @@ v1.site.register(models.Course,CourseConfig)
 
 
 class ConsultRecordConfig(v1.StarkConfig):
-    def display_customer(self,obj=None,is_header=False):
-        if is_header:
-            return "所咨询客户"
-        return obj.customer.name
-    def display_consultant(self,obj=None,is_header=False):
-        if is_header:
-            return "跟踪人"
-        return obj.consultant.name
-
-    list_display = ["id",display_customer,display_consultant,"date","note"]
-
-    show_search_form = True
+    list_display = ["customer","consultant","date"]
+    comb_filter = [
+        v1.FilterOption("customer")
+    ]
+    def changelist_view(self, request, *args, **kwargs):
+        customer = request.GET.get("customer")
+        current_login_user_id = 11
+        ct = models.Customer.objects.filter(consultant=current_login_user_id,id=customer).count()
+        if ct:
+            return super(ConsultRecordConfig, self).changelist_view(request, *args, **kwargs)
+        return HttpResponse("不是你的客户")
 
 
 

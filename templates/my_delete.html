@@ -1,18 +1,17 @@
 {% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+{% extends "stark/layout.html" %}
+
+{% block style %}
     <style>
         body{
             background: url("{% static 'img/demo2.jpg' %}");
         }
     </style>
-</head>
-<body>
-<div class="container">
+{% endblock %}
+
+
+{% block body %}
+    <div class="container">
     <div class="row" style="margin-top: 200px">
         <div class="col-md-4 col-md-offset-4">
             <h1>你确定要删除吗？</h1>
@@ -24,6 +23,4 @@
         </div>
     </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from stark.service import v1
-from app01 import models
-from django.utils.safestring import mark_safe
 from django.conf.urls import url
-from django.shortcuts import HttpResponse,render,redirect
 from django.forms import ModelForm
 from django.forms import widgets
-from adm import pager
+from django.shortcuts import render, redirect
 
-
-
+from app01 import models
+from stark.service import v1
 
 
 class UserInfoForm(ModelForm):

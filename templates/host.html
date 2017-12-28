@@ -1,14 +1,11 @@
 {% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+{% extends "stark/layout.html" %}
 
 
-</head>
-<style>
+
+
+{% block style %}
+    <style>
     .pager a{
         display: inline-block;
         padding:2px 8px;
@@ -22,22 +19,23 @@
     }
 
 </style>
-<body>
+{% endblock %}
 
 
 
 
 
-<ul>
+{% block body %}
+    <ul>
     {% for host in host_list %}
             <li>{{ host }}</li>
 {#        某一段数据#}
     {% endfor %}
 
 </ul>
-<div class="pager">
-    {{ page_html|safe }}
-{#    按钮#}
-</div>
-</body>
-</html>
+    <div class="pager">
+        {{ page_html|safe }}
+    {#    按钮#}
+    </div>
+{% endblock %}
+

@@ -1,39 +1,37 @@
+{% extends "stark/layout.html" %}
 {% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+
+{% block style %}
     <style>
-        body {
-            background: url("{% static 'img/background.jpg'  %}") no-repeat;
-            background-size: cover;
-            opacity: 1;
-            font-weight: inherit;
-            font-size: 14px;
-            color: black;
-        }
-        .list-filter a{
-            display: inline-block;
-            padding: 3px 6px;
-            border: 1px solid #2b669a;
-            margin: 3px 0;
-            text-decoration: none;
-        }
-        .list-filter a.active{
-            background-color: #2b669a;
-            color: white;
+            body {
+                background: url("{% static 'img/background.jpg' %}") no-repeat;
+                background-size: cover;
+                opacity: 1;
+                font-weight: inherit;
+                font-size: 14px;
+                color: black;
+            }
+            .list-filter a{
+                display: inline-block;
+                padding: 3px 6px;
+                border: 1px solid #2b669a;
+                margin: 3px 0;
+                text-decoration: none;
+            }
+            .list-filter a.active{
+                background-color: #2b669a;
+                color: white;
 
-        }
-{#        .item{#}
-{#            display: block;#}
-{#        }#}
-    </style>
+            }
+    {#        .item{#}
+    {#            display: block;#}
+    {#        }#}
+        </style>
+{% endblock %}
 
-</head>
-<body>
-<div class="container">
+
+{% block body %}
+    <div class="container">
     <h1>列表展示页面</h1>
 
 
@@ -101,7 +99,6 @@
     </form>
 
 
-
     <nav aria-label="...">
         <ul class="pagination">
             {{ cl.page_obj.page_html|safe }}
@@ -109,5 +106,4 @@
     </nav>
 
 </div>
-</body>
-</html>
+{% endblock %}

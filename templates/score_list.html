@@ -1,13 +1,10 @@
 {% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
-</head>
-<body>
-<div class="container">
+{% extends "stark/layout.html" %}
+
+
+
+{% block body %}
+    <div class="container">
     <h1>学生信息</h1>
     <form action="" method="post">
     {% csrf_token %}
@@ -28,5 +25,4 @@
     <input type="submit" value="提交">
 </form>
 </div>
-</body>
-</html>
+{% endblock %}

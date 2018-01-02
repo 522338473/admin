@@ -1,109 +1,90 @@
-{% extends "stark/layout.html" %}
-{% load staticfiles %}
+{% extends 'stark/layout.html' %}
 
-{% block style %}
+{% block css %}
     <style>
-            body {
-                background: url("{% static 'img/background.jpg' %}") no-repeat;
-                background-size: cover;
-                opacity: 1;
-                font-weight: inherit;
-                font-size: 14px;
-                color: black;
-            }
-            .list-filter a{
-                display: inline-block;
-                padding: 3px 6px;
-                border: 1px solid #2b669a;
-                margin: 3px 0;
-                text-decoration: none;
-            }
-            .list-filter a.active{
-                background-color: #2b669a;
-                color: white;
-
-            }
-    {#        .item{#}
-    {#            display: block;#}
-    {#        }#}
-        </style>
+        .list-filter a{
+            display: inline-block;
+            padding: 3px 6px;
+            border: 1px solid #2e6da4;
+            margin: 3px 0;
+        }
+        .list-filter a.active{
+            background-color: #2e6da4;
+            color: white;
+        }
+    </style>
 {% endblock %}
 
-
 {% block body %}
-    <div class="container">
-    <h1>列表展示页面</h1>
 
-
-
+    <h1>列表页面</h1>
     {% if cl.show_comb_filter %}
         <div class="list-filter">
-        {% for item in cl.gen_comb_filter %}
-            <div class="item">
-                {% for col in item %}
-                    {{ col }}
-                {% endfor %}
-            </div>
-        {% endfor %}
-    </div>
+            {% for filter_row in  cl.gen_comb_filter %}
+                <div>
+                    {% for col in filter_row  %}
+                        {{ col }}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 
 
     {% if cl.show_search_form %}
-        <div class="form-group pull-right">
+        <div class="form-group" style="float: right">
             <form method="get">
-                <input name="{{ cl.config.search_key }}" value="{{ cl.search_form_val }}" class="form-control"
-                       placeholder="请输入搜索条件" type="text" style="display:inline-block;width: 200px;">
+                <input name="{{ cl.config.search_key }}" value="{{ cl.search_form_val }}" class="form-control" placeholder="请输入搜索条件" type="text"  style="display:inline-block;width: 200px;"/>
                 <button class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+
             </form>
         </div>
     {% endif %}
 
     {% if cl.show_add_btn %}
-        <a href="{{ cl.add_url }}" class="btn btn-primary">添加</a>
+        <div style="margin: 5px 0">
+            <a class="btn btn-success" href="{{ cl.add_url }}">添加</a>
+        </div>
     {% endif %}
 
     <form method="post">
         {% csrf_token %}
         {% if cl.show_actions %}
             <div class="form-group">
-                <select name="list_action" class="form-control" style="display:inline-block;width: 200px;">
-                    <option value="">请选择初始化</option>
-                    {% for item in cl.modify_actions %}
-                        <option value="{{ item.name }}">{{ item.text }}</option>
-                    {% endfor %}
-                </select>
-                <button class="btn btn-primary">执行</button>
-            </div>
-        {% endif %}
-
-    <table class="table table-bordered table-hover">
-        <thead>
-        {% for head in cl.head_list %}
-            <th>{{ head }}</th>
-        {% endfor %}
-
-        </thead>
-        <tbody>
-        {% for data in cl.body_list %}
-            <tr>
-                {% for obj in data %}
-                    <td>{{ obj }}</td>
+            <select name="list_action" class="form-control" style="display:inline-block;width: 200px;">
+                <option value="">请选择action</option>
+                {% for item in cl.modify_actions %}
+                    <option value="{{ item.name }}">{{ item.text }}</option>
                 {% endfor %}
-            </tr>
-        {% endfor %}
 
-
-        </tbody>
-    </table>
+            </select>
+            <button class="btn btn-primary">执行</button>
+        </div>
+        {% endif %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    {% for item in cl.head_list %}
+                        <th>{{ item }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in cl.body_list %}
+                    <tr>
+                        {% for col in obj %}
+                            <td>{{ col }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </form>
-
-
-    <nav aria-label="...">
+    <div>
         <ul class="pagination">
-            {{ cl.page_obj.page_html|safe }}
+            {{ cl.page_obj.bootstrap_page_html|safe }}
         </ul>
-    </nav>
+    </div>
 
-</div>
 {% endblock %}
+

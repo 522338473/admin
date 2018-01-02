@@ -4,9 +4,14 @@ from django.conf.urls import url
 from stark.service import v1
 from django.utils.safestring import mark_safe
 from django.shortcuts import render,redirect,HttpResponse
-
+from crm.permission.base import BasePermission
 from crm.config.student import StudentConfig
 from crm.config.customer import CustomerConfig
+
+
+
+
+
 
 class UserInfoConfig(v1.StarkConfig):
     list_display = ["id","name","username","email","depart"]
@@ -196,9 +201,9 @@ v1.site.register(models.PaymentRecord,PaymentRecordConfig)
 
 
 
-class SchoolConfig(v1.StarkConfig):
+class SchoolConfig(BasePermission,v1.StarkConfig):
     list_display = ["id","title"]
-    show_search_form = True
+
 
 
 v1.site.register(models.School,SchoolConfig)

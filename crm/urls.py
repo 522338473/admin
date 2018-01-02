@@ -16,12 +16,12 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from stark.service import v1
+from app03 import views
 
-from crm import views
 
 urlpatterns = [
     url(r'^stark/', v1.site.urls),
-    url(r'^login/$',views.login),
-    url(r'^index/$',views.index),
+    url(r'^host/', views.hosts),
+
 
 ]

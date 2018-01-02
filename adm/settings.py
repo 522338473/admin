@@ -54,7 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'rbac.middlewares.rbac.RbacMiddleware',
+    'rbac.middlewares.rbac.LoginMiddleware',
+    'rbac.middlewares.rbac.RbacMiddleware',
 ]
 
 ROOT_URLCONF = 'adm.urls'
@@ -144,12 +145,12 @@ MESSAGE_CLASSES = [
 #过滤出来的不需要验证就可以访问的页面
 VALID_URL = [
     "/login/",
-    "/admin.*"
+    "/index/"
 ]
 
 PERMISSION_URL_DICT_KEY = "permission_url_dict"
 
-PERMISSION_URL_MENU_KEY = "zhe_li_sui_bian_qi"
+PERMISSION_MENU_KEY = "zhe_li_sui_bian_qi"
 
 
 

@@ -1,16 +1,14 @@
-import json
 from django.conf.urls import url
-from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.shortcuts import render,HttpResponse,redirect
-from django.db.models import Q
-import datetime
-from django.forms import ModelForm
 from django.db import transaction
+from django.db.models import Q
+from django.forms import ModelForm
+from django.shortcuts import render, HttpResponse, redirect
+from django.utils.safestring import mark_safe
+
+from crm import models
+from stark.service import v1
 from utils import message
 
-from stark.service import v1
-from crm import models
 
 class SingleModelForm(ModelForm):
     class Meta:
@@ -73,6 +71,7 @@ class CustomerConfig(v1.StarkConfig):
             url(r'^user/$',self.wrap(self.user_view),name="%s_%s_user"%app_model_name),
             url(r'^(\d+)/competition/$',self.wrap(self.competition_view),name="%s_%s_competition"%app_model_name),
             url(r'^single/$', self.wrap(self.single_view), name="%s_%s_single" % app_model_name),
+            url(r'^multi/$', self.wrap(self.multi_view), name="%s_%s_multi" % app_model_name),
 
         ]
         return patterns
@@ -118,7 +117,7 @@ class CustomerConfig(v1.StarkConfig):
             return render(request,"single_view.html",{"forms":forms})
         else:
             # 这里是添加客户的处理机智
-            from qndy import CNM
+            from utils.qndy import CNM
 
             forms = SingleModelForm(request.POST)
             if forms.is_valid():
@@ -142,6 +141,25 @@ class CustomerConfig(v1.StarkConfig):
 
                 return redirect(self.get_list_url())
         return render(request, "single_view.html", {"forms": forms})
+
+
+    def multi_view(self,request):
+        if request.method == "GET":
+            return render(request,"multi_view.html")
+        else:
+            from django.core.files.uploadedfile import InMemoryUploadedFile
+            file_obj = request.FILES.get("files")
+            file_name = file_obj.name
+            with open(file_name,mode="wb") as f:
+                for row in file_obj:
+                    f.write(row)
+            import xlrd
+            workbook = xlrd.open_workbook(file_name)
+            sheet = workbook.sheet_by_index(0)
+            print("============>",sheet)
+
+
+            return HttpResponse("上传成功")
 
 
 

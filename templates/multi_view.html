@@ -1,0 +1,18 @@
+{% extends "stark/layout.html" %}
+{% load staticfiles %}
+
+
+{% block body %}
+    <div class="container">
+        <h1>Excel批量导入</h1>
+        <h3>上传文件前请下载模板填写！</h3>
+        <a href="{% static 'files/multiplay.xlsx' %}">下载模板</a>
+        <div style="margin-top: 30px">
+            <form method="post" novalidate enctype="multipart/form-data" class="form-horizontal" >
+            {% csrf_token %}
+            <input type="file" name="files">
+            <input type="submit" value="提交" class="btn-primary">
+        </form>
+        </div>
+    </div>
+{% endblock %}

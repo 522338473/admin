@@ -458,7 +458,7 @@ class StarkConfig(object):
                 else:
                     return redirect(self.get_list_url())
 
-            return render(request, "stark/change_add.html", {"form": form})
+            return render(request, "stark/change_add.html", {"form": form,'config':self})
 
 
     def change_view(self, request, nid, *args, **kwargs):
@@ -470,7 +470,7 @@ class StarkConfig(object):
         if request.method == "GET":
             form = model_form_class(instance=obj)
 
-            return render(request, "stark/change_edit.html", {"form": form})
+            return render(request, "stark/change_edit.html", {"form": form,'config':self})
         else:
             form = model_form_class(instance=obj, data=request.POST)
             if form.is_valid:
@@ -480,7 +480,7 @@ class StarkConfig(object):
                 list_url = "%s?%s"%(self.get_list_url(),list_query_str)
                 # list_url:拼接后的路径,返回的时候具有记忆功能
                 return redirect(list_url)
-            return render(request, "stark/change_edit.html", {"form": form})
+            return render(request, "stark/change_edit.html", {"form": form,'config':self})
 
 
 
